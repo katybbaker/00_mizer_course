@@ -1,0 +1,172 @@
+
+
+---
+title: "What is Git? Please don't scare me, no more"
+author: "Romain Forestier"
+date: "`r Sys.Date()`"
+output:
+  html_document: default
+place: Hobart, Australia
+always_allow_html: yes
+---
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+
+```
+
+Requirements:
+
+Have git installed (http://git-scm.com/downloads)
+
+Have usethis and gitcreds R package installed 
+
+```{r}
+install.packages(c("usethis","gitcreds"))
+```
+
+# Why using GitHub?
+
+- Git is a software that track changes in your files.
+
+- GitHub is the online version which allows you to share your files and collaborate with others. It can also be used as an online backup.
+
+In summary, GitHub allows you to track your progress wihtout losing previous versions of your work, independently of what machine you are working on.
+
+Git is used with shell commands, meaning that there is no graphical interface for the software. Rstudio implements some Git functions in its interface but only the simplest ones actually manage to keep up with what's happening with Git. Therefore this tutorial mainly uses the console and terminal to guide you through Git functions. No previous knowledge is necessary to follow the tutorial. If there is no "terminal" tab in your RStudio, you can open one with Tools>Terminal>New Terminal or Shift+Alt+R
+
+
+## Installing Git
+
+Check if Git is installed on your machine and/or if Rstudio knows where Git is. (use the terminal)
+
+```{bash}
+which git
+```
+
+On windows, one might needs to give the path of Git to Rstudio in Tools>Global Options>Git/SVN. Enter the path where Git is installed in the "Git executable" cell (usually C:/Program Files/Git/bin/git.exe).
+
+Since Git allows for collaboration, one needs to setup an identifiant and email address first, so changes made to any file can be tracked to its human origin.
+
+```{r}
+usethis::edit_git_config()
+```
+
+Edit the opened script with your informations.
+
+
+## Initialize your first Git repository
+
+In Rstudio, a Git repository is based on a R project. If you are not using R projects yet, time to get onto it!
+
+Let's start by creating a new project using the "new directory>new project" option. There a cell asking you if you want to make it a Git repository. That's one way to do it, below is another way using the console that also allows converting an existing R project into a Git repository.
+
+In your new project, there are no Git tab next to the "environment" and "history" tab yet.
+
+Use the below command to initialise the Git repository
+
+```{r}
+usethis::use_git()
+```
+
+Now we have a Git tab! (might need to restart Rstudio)
+
+On the Git tab, the "clock" button is the history of the project (all the commits done). For now there is just one, the initial commit.
+
+## Commiting your changes
+
+Let's create new file
+
+```{r}
+file.edit("test.R")
+```
+
+Click on the "Commit" button in the Git tab. It opens a "Commit" window that shows you all the files that differ from the previous commit made on Git. Yellow symbols means that the files are not tracked and Git is waiting to know if they should be. Click on your recently created file and it becomes green. It means that Git is going to add the file for the first time to your tracked changes. Write a commit message and commit.
+
+Now add something in your new file and save it. Back in the "Commit" window, the script is in blue, meaning there are differences between the last commit saved by Git and your last save.
+
+Commit the changes and check the history of your commits.
+That's the track change function of Git.
+
+## Connecting GitHub and going online
+
+First step is to use your favorite browser to go to https://github.com/ and create a GitHub account.
+
+The first thing to know about GitHub is that you are going to use your password only to connect to your account online, everything else, namely using Git functions is done using personal access tokens (PAT). One can also use SSH to connect with GitHub but if you know what SSH is, you also know how to set it up yourself (probably).
+
+We are going to use R to create a PAT and link our local Git repository to GitHub.
+
+```{r}
+usethis::create_github_token()
+```
+
+This sends you in your GitHub account where you can create a PAT and define its function. Think of the PAT as a strong password with editable privileges.
+Once you create your PAT store it somewhere as you are never going to see it again on GitHub.
+
+Now to connect to GitHub, the easiest is to store your credentials with Rstudio.
+
+```{r}
+gitcreds::gitcreds_set()
+```
+
+You need to enter your PAT in the password slot. The password used to connect to your GitHub account won't work.
+
+Now you will be able to host your R projects into GitHub repositories!
+
+#### Note on using a linux server
+
+Rstudio installed on linux server, such as when using a nectar instance, do not have a proper way to store credentials. The default behavior is limited to a cache with a lifespan of 900 seconds. To store your PAT, you need the credential R package
+
+```{r}
+credentials::set_github_pat()
+```
+
+Paste your token when prompted.
+
+To check your GitHub account info and if the token is well saved:
+
+```{r}
+usethis::git_sitrep()
+```
+
+
+Other solutions to store your PAT that didn't work for me:
+
+```{bash}
+git config --global credential.helper store
+
+```
+
+Then commit once using your username and PAT when prompted.
+
+Another solution is to set your PAT in your Renviron.r
+
+```{r}
+usethis::edit_r_environ()
+
+```
+
+Then add
+
+```{r}
+#GITHUB_PAT=40charactersPAT
+#
+```
+
+Do not forget to add an empty line at the end then, restart the R session to take changes into account.
+
+### Connecting from Rstudio
+
+For when you already have a project that you want to put on GitHub.
+
+You need to have Git set up in your project with `use_git()`, then use
+
+```{r}
+usethis::use_github()
+```
+
+### Connecting from GitHub
+
+When you create a new project in Rstudio, you can select the version control option and enter the GitHub URL to link it to your project. The repository's URL is found on its main page by clicking on the green "Code" button.
+
+![Annoted screen shot of a GitHub repository](figures/describedScreenshot.png)
