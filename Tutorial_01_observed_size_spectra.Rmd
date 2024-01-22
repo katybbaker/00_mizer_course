@@ -1,5 +1,5 @@
 ---
-title: "tutorial_01"
+title: "tutorial_01_observed_size_spectra"
 output: html_document
 date: "2024-01-22"
 ---
